@@ -1,0 +1,14 @@
+body {
+    font-family: 'YourFontName', sans-serif;
+  }
+  :root {
+    --primary-color: #FF5733;
+    --secondary-color: #333;
+  }
+  
+  button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+  }
+    
