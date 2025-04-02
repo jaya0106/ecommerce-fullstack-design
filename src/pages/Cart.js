@@ -1,48 +1,66 @@
-import React, { useState } from "react";
-import "./Cart.css";
+// src/pages/ProductDetails.js
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
-function Cart() {
-  const [cartItems, setCartItems] = useState([
-    { id: 1, name: "Product 1", price: 99.99, quantity: 1 },
-    { id: 2, name: "Product 2", price: 79.99, quantity: 1 },
-  ]);
+function ProductDetails() {
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
 
-  const updateQuantity = (id, amount) => {
-    setCartItems((prevItems) =>
-      prevItems
-        .map((item) =>
-          item.id === id ? { ...item, quantity: item.quantity + amount } : item
-        )
-        .filter((item) => item.quantity > 0)
-    );
-  };
+  useEffect(() => {
+    axios.get(`http://localhost:5000/products/${id}`)
+      .then(response => {
+        setProduct(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching product details:', error);
+      });
+  }, [id]);
 
-  const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  if (!product) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="container mt-5">
-      <h2 className="text-center">Shopping Cart</h2>
-      {cartItems.length === 0 ? (
-        <h4 className="text-center mt-4">Your cart is empty</h4>
-      ) : (
-        <div className="cart-items">
-          {cartItems.map((item) => (
-            <div key={item.id} className="cart-item">
-              <span>{item.name}</span>
-              <span>${item.price.toFixed(2)}</span>
-              <div className="quantity-control">
-                <button onClick={() => updateQuantity(item.id, -1)}>-</button>
-                <span>{item.quantity}</span>
-                <button onClick={() => updateQuantity(item.id, 1)}>+</button>
-              </div>
-            </div>
-          ))}
-          <h4 className="text-end">Total: ${totalPrice.toFixed(2)}</h4>
-          <button className="btn btn-dark w-100 mt-3">Proceed to Checkout</button>
+    
+    <div className="container mt-4">
+      <h2>{product.name}</h2>
+      <div className="row">
+        <div className="col-md-6">
+          <img src={product.image} className="img-fluid" alt={product.name} />
         </div>
-      )}
+        <div className="col-md-6">
+          <p>Price: ${product.price}</p>
+          <p>Description: {product.description}</p>
+          <p>Category: {product.category}</p>
+          <p>Stock: {product.stock}</p>
+        </div>
+        // Example Modification in src/pages/Cart.js
+
+// In the return statement where the table is.
+<div className="container mt-4">
+  <h2>Your Cart</h2>
+  <div className="table-responsive">
+    <table className="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {/* ... */}
+      </tbody>
+      <tfoot>
+        {/* ... */}
+      </tfoot>
+    </table>
+  </div>
+</div>
+      </div>
     </div>
   );
 }
 
-export default Cart;
+export default ProductDetails;

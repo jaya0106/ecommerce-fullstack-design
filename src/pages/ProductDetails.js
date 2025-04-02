@@ -1,50 +1,59 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import "./ProductDetails.css"; // Custom styles
-
-const productsData = [
-  { id: 1, name: "Product 1", price: "$99.99", image: "https://via.placeholder.com/400", description: "This is an amazing product." },
-  { id: 2, name: "Product 2", price: "$79.99", image: "https://via.placeholder.com/400", description: "This product is worth buying." },
-  { id: 3, name: "Product 3", price: "$49.99", image: "https://via.placeholder.com/400", description: "High quality and durable." },
-  { id: 4, name: "Product 4", price: "$89.99", image: "https://via.placeholder.com/400", description: "You will love this product." },
-  { id: 5, name: "Product 5", price: "$59.99", image: "https://via.placeholder.com/400", description: "Best in the market." },
-  { id: 6, name: "Product 6", price: "$109.99", image: "https://via.placeholder.com/400", description: "Highly recommended!" },
-  { id: 7, name: "Product 7", price: "$99.99", image: "https://via.placeholder.com/400", description: "This is an amazing product." },
-  { id: 8, name: "Product 8", price: "$79.99", image: "https://via.placeholder.com/400", description: "This product is worth buying." },
-  { id: 9, name: "Product 9", price: "$49.99", image: "https://via.placeholder.com/400", description: "High quality and durable." },
-  { id: 10, name: "Product 10", price: "$89.99", image: "https://via.placeholder.com/400", description: "You will love this product." },
-  { id: 11, name: "Product 11", price: "$59.99", image: "https://via.placeholder.com/400", description: "Best in the market." },
-  { id: 12, name: "Product 12", price: "$109.99", image: "https://via.placeholder.com/400", description: "Highly recommended!" },
-];
+// src/pages/ProductDetails.js
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
 function ProductDetails() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
-    const selectedProduct = productsData.find((item) => item.id === parseInt(id));
-    setProduct(selectedProduct);
+    setLoading(true); // Set loading to true before fetching data
+    axios.get(`http://localhost:5000/products/${id}`)
+      .then(response => {
+        setProduct(response.data);
+        setLoading(false); // Set loading to false after data is fetched
+      })
+      .catch(error => {
+        console.error('Error fetching product details:', error);
+        setLoading(false); // Set loading to false in case of error
+      });
   }, [id]);
 
+  if (loading) {
+    return (
+      <div className="container mt-4 text-center">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   if (!product) {
-    return <h2 className="text-center mt-5">Product Not Found</h2>;
+    return <div className="container mt-4">Product not found.</div>;
   }
 
   return (
-    <div className="container mt-5">
-      <div className="row">
-        <div className="col-md-6">
-          <img src={product.image} alt={product.name} className="img-fluid product-image" />
-        </div>
-        <div className="col-md-6">
-          <h2>{product.name}</h2>
-          <p className="text-muted">{product.price}</p>
-          <p>{product.description}</p>
-          <button className="btn btn-dark">Add to Cart</button>
-        </div>
-      </div>
-    </div>
-  );
+    <div className="container mt-4">
+    <nav aria-label="breadcrumb">
+      <ol className="breadcrumb">
+        <li className="breadcrumb-item">
+          <Link to="/">Home</Link>
+        </li>
+        <li className="breadcrumb-item">
+          <Link to="/products">Products</Link>
+        </li>
+        <li className="breadcrumb-item active" aria-current="page">
+          {product && product.name}
+        </li>
+      </ol>
+    </nav>
+    <h2>{product && product.name}</h2>
+    {/* ... (product details) ... */}
+  </div>
+);
 }
 
 export default ProductDetails;
